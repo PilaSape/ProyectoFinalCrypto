@@ -20,7 +20,7 @@ namespace APICRYPTO.Controllers
         {
             try
             {
-                var url = $"https://criptoya.com/api/binance/{cryptoCode}/ars/1";
+                var url = $"https://criptoya.com/api/binance/{cryptoCode}/EUR/1";
                 var respuesta = await _httpClient.GetFromJsonAsync<CriptoyaResponse>(url);
                 if (respuesta == null) return StatusCode(500, "No se pudo obtener el precio");
 

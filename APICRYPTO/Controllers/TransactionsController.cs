@@ -150,7 +150,7 @@ namespace APICRYPTO.Controllers
         {
             try
             {
-                var url = $"https://criptoya.com/api/binance/{cryptoCode}/ars/1";
+                var url = $"https://criptoya.com/api/binance/{cryptoCode}/EUR/1";
                 var respuesta = await _httpClient.GetFromJsonAsync<CriptoyaResponse>(url);
                 return respuesta?.totalBid;
             }
