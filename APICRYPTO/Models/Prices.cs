@@ -4,5 +4,6 @@
     {
         public string CryptoCode { get; set; }
         public decimal Price { get; set; }
+        public decimal TotalAsk { get; set; }
     }
 }

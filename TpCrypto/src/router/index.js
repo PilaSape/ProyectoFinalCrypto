@@ -3,6 +3,8 @@ import HomeView from '../views/InicioView.vue'
 import PortafolioView from '../views/PortafolioView.vue'
 import TransaccionesView from '../views/TransaccionesView.vue'
 import VentaCompraView from '../views/VentaCompraView.vue'
+import MercadoView from '../views/MercadoView.vue'
+import LoginView from '../views/LoginView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,6 +28,16 @@ const router = createRouter({
       path: '/ventacompra',
       name: 'ventacompra',
       component: VentaCompraView
+    },
+    {
+      path: '/mercado',
+      name: 'mercado',
+      component: MercadoView
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: LoginView
     }
   ],
 })

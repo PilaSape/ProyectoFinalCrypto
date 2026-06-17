@@ -1,57 +1,164 @@
 <template>
- <div>
-    <h1>Compra/Venta</h1>
-    <select class="form-select" v-model="accion">
-      <option selected>Selecciona una acción</option>
-      <option value="purchase">Comprar</option>
-      <option value="sale">Vender</option>
-    </select>
+  <div class="container mt-4">
+    <h1 class="fw-bold text-center mb-4 text-success">COMPRAR O VENDER</h1>
+
     
-    <!-- si es compra muestro todas las cryptos, si es venta solo las que tengo -->
-    <select class="form-select" v-model="criptomoneda">
-      <option selected>Selecciona una criptomoneda</option>
+    <div v-if="mensaje" :class="{ 'alert': true, 'alert-success': mensajeTipo === 'success', 'alert-danger': mensajeTipo === 'danger' }">
+      {{ mensaje }}
+    </div>
 
-      <template v-if="accion === 'purchase'">
-        <option value="BTC">Bitcoin</option>
-        <option value="ETH">Ethereum</option>
-        <option value="ADA">Cardano</option>
-      </template>
+    <div class="row justify-content-center">
+      <div class="col-6">
 
-      <template v-else-if="accion === 'sale'">
-        <option v-for="t in portafolio.tenencias" :key="t.cryptoCode" :value="t.cryptoCode">
-          {{ t.cryptoCode }}
-        </option>
-      </template>
+        
+        <select class="form-select mb-3" v-model="accion">
+          <option value="" disabled>Selecciona una acción</option>
+          <option value="purchase">Comprar</option>
+          <option value="sale">Vender</option>
+        </select>
 
-    </select>
-    
-    <input type="number" class="form-control" placeholder="Cantidad" v-model="cantidad">
+        
+        <select class="form-select mb-3" v-model="criptomoneda">
+          <option value="">Selecciona una criptomoneda</option>
+          <template v-if="accion === 'purchase'">
+            <option value="BTC">Bitcoin</option>
+            <option value="ETH">Ethereum</option>
+            <option value="ADA">Cardano</option>
+            <option value="USDC">USDC</option>
+            <option value="SOL">Solana</option>
+            <option value="BNB">BNB</option>
+          </template>
+          <template v-else-if="accion === 'sale'">
+            <option v-for="t in portafolio.tenencias" :key="t.cryptoCode" :value="t.cryptoCode">
+              {{ t.cryptoCode }} ({{ t.cantidad }} disponibles)
+            </option>
+          </template>
+          <template v-else>
+            <option disabled>Selecciona una acción primero</option>
+          </template>
+        </select>
 
-    <button class="btn btn-primary" @click="enviar">Confirmar</button>
+
+        <input type="number" class="form-control mb-3" placeholder="Cantidad" v-model="cantidad" min="0" step="any">
+
+
+        <div v-if="precioUnitario && cantidad > 0" class="mb-3">
+          <p>Precio unitario: $ {{ precioUnitario.toLocaleString('es-AR') }}</p>
+          <p><strong>Total de {{ cantidad }} {{ criptomoneda }}: $ {{ (precioUnitario * cantidad).toLocaleString('es-AR') }}</strong></p>
+        </div>
+
+        <button class="btn btn-primary" @click="enviar" :disabled="cargando">
+          <span v-if="cargando">Procesando...</span>
+          <span v-else>Confirmar</span>
+        </button>
+
+      </div>
+    </div>
   </div>
 </template>
+
 <script setup>
-import { ref, onMounted } from 'vue'
 
-const accion = ref("");
-const criptomoneda = ref("");
-const cantidad = ref(0);
-const portafolio = ref({ tenencias: [], totalEnPesos: 0 });
+import { ref, onMounted, watch } from 'vue'
 
-onMounted(async () => {
-  portafolio.value = await((await fetch("https://localhost:7076/Transactions/portfolio")).json());
+const accion = ref("")
+const criptomoneda = ref("")
+const cantidad = ref("")
+const portafolio = ref({ tenencias: [], totalEnARS: 0 })
+const mensaje = ref("")
+const mensajeTipo = ref("success")
+const cargando = ref(false)
+const precioUnitario = ref(null)
+
+onMounted(async function() 
+{
+  portafolio.value = await (await fetch("https://localhost:7076/Transactions/portfolio")).json()
 })
 
-async function enviar() {
-  await fetch("https://localhost:7076/Transactions", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      cryptoCode: criptomoneda.value,
-      action: accion.value,
-      cryptoAmount: cantidad.value,
-      dateTime: new Date().toISOString()
+async function enviar() 
+{
+  mensaje.value = ""
+
+  if (!accion.value) 
+  {
+    mensajeTipo.value = "danger"
+    mensaje.value = "Seleccioná una acción."
+    return
+  }
+  if (!criptomoneda.value) 
+  {
+    mensajeTipo.value = "danger"
+    mensaje.value = "Seleccioná una criptomoneda."
+    return
+  }
+  if (!cantidad.value || Number(cantidad.value) <= 0) 
+  {
+    mensajeTipo.value = "danger"
+    mensaje.value = "La cantidad debe ser mayor a 0."
+    return
+  }
+
+  cargando.value = true
+  try 
+  {
+    const res = await fetch("https://localhost:7076/Transactions", 
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify
+      ({
+        cryptoCode: criptomoneda.value,
+        action: accion.value,
+        cryptoAmount: Number(cantidad.value),
+        dateTime: new Date().toISOString()
+      })
     })
-  })
+
+    if (res.ok) // si el back responde bien aca, entonces muestro mensaje de éxito y limpio el form
+    {
+      mensajeTipo.value = "success"
+      textoMensaje()
+      // limpio el form
+      accion.value = ""
+      criptomoneda.value = ""
+      cantidad.value = ""
+      // actualizo portafolio para que la lista de venta quede actualizada
+      portafolio.value = await (await fetch("https://localhost:7076/Transactions/portfolio")).json()
+    } 
+    else 
+    {
+      const error = await res.text()
+      mensajeTipo.value = "danger"
+      mensaje.value = `Error: ${error}`
+    }
+  } 
+  catch (error)//si no se conecto a la bdd
+  {
+    mensajeTipo.value = "danger"
+    mensaje.value = "No se pudo conectar con el servidor."
+  } 
+  finally 
+  {
+    cargando.value = false
+  }
 }
+
+function textoMensaje() 
+{
+  if (accion.value === 'purchase') 
+  {
+    mensaje.value = "Compra realizada con éxito."
+  } else 
+  {
+    mensaje.value = "Venta realizada con éxito."
+  }
+}
+
+watch(criptomoneda, async function(nuevaCripto) 
+{
+  if (!nuevaCripto) return
+  const res = await fetch(`https://localhost:7076/Prices/${nuevaCripto}`)
+  const data = await res.json()
+  precioUnitario.value = data.totalAsk
+})
 </script>

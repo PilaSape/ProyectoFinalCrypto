@@ -142,7 +142,7 @@ namespace APICRYPTO.Controllers
             }
 
             // paso 4: devuelvo la lista de criptos y el total
-            return Ok(new { Tenencias = portafolio, TotalEnPesos = total });
+            return Ok(new { Tenencias = portafolio, TotalEnARS = total });
         }
 
         // funcion para consultar el precio de una cripto en criptoya usando binance como exchange
@@ -150,7 +150,7 @@ namespace APICRYPTO.Controllers
         {
             try
             {
-                var url = $"https://criptoya.com/api/binance/{cryptoCode}/EUR/1";
+                var url = $"https://criptoya.com/api/binance/{cryptoCode}/ARS/1";
                 var respuesta = await _httpClient.GetFromJsonAsync<CriptoyaResponse>(url);
                 return respuesta?.totalBid;
             }

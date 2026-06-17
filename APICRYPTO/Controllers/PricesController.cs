@@ -20,20 +20,21 @@ namespace APICRYPTO.Controllers
         {
             try
             {
-                var url = $"https://criptoya.com/api/binance/{cryptoCode}/EUR/1";
+                var url = $"https://criptoya.com/api/binance/{cryptoCode}/ARS/1";
                 var respuesta = await _httpClient.GetFromJsonAsync<CriptoyaResponse>(url);
                 if (respuesta == null) return StatusCode(500, "No se pudo obtener el precio");
 
                 var resultado = new Prices
                 {
                     CryptoCode = cryptoCode,
-                    Price = respuesta.totalBid
+                    Price = respuesta.totalBid,
+                    TotalAsk = respuesta.totalAsk
                 };
                 return Ok(resultado);
             }
-            catch
+            catch (Exception ex)
             {
-                return StatusCode(500, "No se pudo obtener el precio");
+                return StatusCode(500, ex.Message);
             }
         }
     }
