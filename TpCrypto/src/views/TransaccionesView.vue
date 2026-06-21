@@ -83,7 +83,6 @@ import { isAdmin } from '../auth.js'
 const transacciones = ref([])
 const editando = ref(null)    // guarda la transaccion que se está editando
 const paraBorrar = ref(null)  // guarda la transaccion que se quiere borrar
-
 onMounted(async function() 
 {
   await cargarTransacciones()
@@ -130,6 +129,24 @@ async function borrar()
   await fetch(`https://localhost:7076/Transactions/${paraBorrar.value.id}`, {
     method: "DELETE"
   })
+
+  let saldoActual = 0
+  const guardado = localStorage.getItem("saldo")
+  if (guardado)
+  {
+    saldoActual = parseFloat(guardado)
+  }
+
+  if(paraBorrar.value.action === "purchase")
+  {
+    saldoActual = saldoActual + paraBorrar.value.money
+  }
+  else
+  {
+    saldoActual = saldoActual - paraBorrar.value.money
+  }
+  localStorage.setItem("saldo", saldoActual)
+
   paraBorrar.value = null
   await cargarTransacciones()
 }

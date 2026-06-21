@@ -1,12 +1,14 @@
 <template>
   <div>
 
-    <nav v-if="isLogueado()" class="navbar navbar-light bg-success px-3 d-flex justify-content-between">
+    <nav v-if="logueado" class="navbar navbar-light bg-success px-3 d-flex justify-content-between">
       
-      <span class="navbar-brand text-dark">CriptoApp</span>
+      <RouterLink to="/" class="navbar-brand text-dark">CriptoApp</RouterLink>
       
       <div class="d-flex gap-2">
-        <button class="btn btn-sm btn-outline-dark" @click="cerrarSesion">Cerrar sesión</button>
+        <span class="text-dark">$ {{ saldo.toLocaleString('es-AR') }}</span>
+        <RouterLink to="/saldos" class="btn btn-dark">Cargar Saldo</RouterLink>
+        <button class="btn btn-sm btn-danger" @click="cerrarSesion">Cerrar sesión</button>
       </div>
     </nav>
     <RouterView />
@@ -14,16 +16,44 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { isLogueado, getUsuario, logout } from './auth.js'
 
 const router = useRouter()
+const route = useRoute()
 const usuario = ref(getUsuario())
 
-function cerrarSesion() {
+const saldo = ref(0)
+const logueado = ref(isLogueado())
+
+function cargarSaldoDesdeStorage()
+{
+  const guardado = localStorage.getItem("saldo")
+  if (guardado)
+  {
+    saldo.value = parseFloat(guardado)
+  } 
+  else 
+  {
+    saldo.value = 0
+  }
+}
+
+cargarSaldoDesdeStorage()
+
+
+watch(function() { return route.path }, function() 
+{
+  cargarSaldoDesdeStorage()
+  logueado.value = isLogueado()
+})
+
+function cerrarSesion()
+ {
   logout()
   usuario.value = null
+  logueado.value = false
   router.push('/login')
 }
 </script>

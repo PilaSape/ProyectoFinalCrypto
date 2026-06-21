@@ -1,7 +1,7 @@
 <template>
   <div class="container mt-4">
     <h1 class="fw-bold text-center mb-4 text-success">COMPRAR O VENDER</h1>
-
+    <p class="text-center text-muted">Saldo disponible: $ {{ saldo.toLocaleString('es-AR') }}</p>
     
     <div v-if="mensaje" :class="{ 'alert': true, 'alert-success': mensajeTipo === 'success', 'alert-danger': mensajeTipo === 'danger' }">
       {{ mensaje }}
@@ -69,10 +69,11 @@ const mensaje = ref("")
 const mensajeTipo = ref("success")
 const cargando = ref(false)
 const precioUnitario = ref(null)
-
+const saldo = ref(0)
 onMounted(async function() 
 {
   portafolio.value = await (await fetch("https://localhost:7076/Transactions/portfolio")).json()
+  cargarSaldoDesdeStorage()
 })
 
 async function enviar() 
@@ -85,20 +86,28 @@ async function enviar()
     mensaje.value = "Seleccioná una acción."
     return
   }
-  if (!criptomoneda.value) 
+  else if (!criptomoneda.value) 
   {
     mensajeTipo.value = "danger"
     mensaje.value = "Seleccioná una criptomoneda."
     return
   }
-  if (!cantidad.value || Number(cantidad.value) <= 0) 
+  else if (!cantidad.value || Number(cantidad.value) <= 0) 
   {
     mensajeTipo.value = "danger"
     mensaje.value = "La cantidad debe ser mayor a 0."
     return
   }
+  
 
   cargando.value = true
+  if(accion.value === 'purchase' && (precioUnitario.value * cantidad.value) > saldo.value)
+  {
+    mensajeTipo.value = "danger"
+    mensaje.value = "No tenes saldo suficiente para comprar esa cantidad."
+    cargando.value = false
+    return
+  }
   try 
   {
     const res = await fetch("https://localhost:7076/Transactions", 
@@ -118,13 +127,23 @@ async function enviar()
     {
       mensajeTipo.value = "success"
       textoMensaje()
-      // limpio el form
+      if(accion.value==="purchase")
+      {
+      saldo.value = saldo.value - (precioUnitario.value * cantidad.value) 
+      localStorage.setItem("saldo", saldo.value)
+      }
+      else
+      {
+          saldo.value = saldo.value + (precioUnitario.value * cantidad.value) 
+          localStorage.setItem("saldo", saldo.value)
+      }
       accion.value = ""
       criptomoneda.value = ""
       cantidad.value = ""
       // actualizo portafolio para que la lista de venta quede actualizada
       portafolio.value = await (await fetch("https://localhost:7076/Transactions/portfolio")).json()
-    } 
+      location.reload()
+    }
     else 
     {
       const error = await res.text()
@@ -151,6 +170,19 @@ function textoMensaje()
   } else 
   {
     mensaje.value = "Venta realizada con éxito."
+  }
+}
+
+function cargarSaldoDesdeStorage() 
+{
+  const guardado = localStorage.getItem("saldo")
+  if (guardado)
+  {
+    saldo.value = parseFloat(guardado)
+  } 
+  else 
+  {
+    saldo.value = 0
   }
 }
 
