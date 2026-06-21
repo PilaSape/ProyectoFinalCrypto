@@ -60,6 +60,7 @@
 <script setup>
 
 import { ref, onMounted, watch } from 'vue'
+import { isLogueado, getUsuario, logout, getClaveSaldo } from '../auth.js'
 
 const accion = ref("")
 const criptomoneda = ref("")
@@ -175,7 +176,7 @@ function textoMensaje()
 
 function cargarSaldoDesdeStorage() 
 {
-  const guardado = localStorage.getItem("saldo")
+  const guardado = localStorage.getItem(getClaveSaldo)
   if (guardado)
   {
     saldo.value = parseFloat(guardado)

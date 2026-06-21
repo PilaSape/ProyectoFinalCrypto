@@ -6,7 +6,7 @@
       <RouterLink to="/" class="navbar-brand text-dark">CriptoApp</RouterLink>
       
       <div class="d-flex gap-2">
-        <span class="text-dark">$ {{ saldo.toLocaleString('es-AR') }}</span>
+        <span class="text-dark fw-bold d-flex align-items-center">$ {{ saldo.toLocaleString('es-AR') }}</span>
         <RouterLink to="/saldos" class="btn btn-dark">Cargar Saldo</RouterLink>
         <button class="btn btn-sm btn-danger" @click="cerrarSesion">Cerrar sesión</button>
       </div>
@@ -18,8 +18,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { isLogueado, getUsuario, logout } from './auth.js'
-
+import { isLogueado, getUsuario, logout, getClaveSaldo } from './auth.js'
 const router = useRouter()
 const route = useRoute()
 const usuario = ref(getUsuario())
@@ -29,7 +28,7 @@ const logueado = ref(isLogueado())
 
 function cargarSaldoDesdeStorage()
 {
-  const guardado = localStorage.getItem("saldo")
+  const guardado = localStorage.getItem(getClaveSaldo())
   if (guardado)
   {
     saldo.value = parseFloat(guardado)

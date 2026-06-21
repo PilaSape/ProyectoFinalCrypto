@@ -78,7 +78,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { isAdmin } from '../auth.js'
+import { isAdmin, getClaveSaldo } from '../auth.js'
 
 const transacciones = ref([])
 const editando = ref(null)    // guarda la transaccion que se está editando
@@ -131,7 +131,7 @@ async function borrar()
   })
 
   let saldoActual = 0
-  const guardado = localStorage.getItem("saldo")
+  const guardado = localStorage.getItem(getClaveSaldo())
   if (guardado)
   {
     saldoActual = parseFloat(guardado)
@@ -145,7 +145,7 @@ async function borrar()
   {
     saldoActual = saldoActual - paraBorrar.value.money
   }
-  localStorage.setItem("saldo", saldoActual)
+  localStorage.setItem(getClaveSaldo(), saldoActual)
 
   paraBorrar.value = null
   await cargarTransacciones()
