@@ -131,12 +131,12 @@ async function enviar()
       if(accion.value==="purchase")
       {
       saldo.value = saldo.value - (precioUnitario.value * cantidad.value) 
-      localStorage.setItem("saldo", saldo.value)
+      localStorage.setItem(getClaveSaldo(), saldo.value)
       }
       else
       {
           saldo.value = saldo.value + (precioUnitario.value * cantidad.value) 
-          localStorage.setItem("saldo", saldo.value)
+          localStorage.setItem(getClaveSaldo(), saldo.value)
       }
       accion.value = ""
       criptomoneda.value = ""
@@ -176,7 +176,7 @@ function textoMensaje()
 
 function cargarSaldoDesdeStorage() 
 {
-  const guardado = localStorage.getItem(getClaveSaldo)
+  const guardado = localStorage.getItem(getClaveSaldo())
   if (guardado)
   {
     saldo.value = parseFloat(guardado)
