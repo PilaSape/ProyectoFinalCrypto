@@ -38,12 +38,15 @@ const USUARIOS = [
   { usuario: "nico", password: "xd", rol: "admin" }
 ]
 
-function login() {
+function login()
+  {
   const encontrado = USUARIOS.find(function(u) { return u.usuario === usuario.value && u.password === password.value })
-  if (encontrado) {
+  if (encontrado) 
+  {
     localStorage.setItem("login", JSON.stringify(encontrado))
     router.push("/")
-  } else {
+  } else 
+  {
     error.value = "Usuario o contraseña incorrectos."
   }
 }

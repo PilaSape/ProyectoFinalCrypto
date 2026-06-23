@@ -28,7 +28,7 @@
 <script setup>
 
 import { ref } from 'vue'
-import { isLogueado, getUsuario, logout, getClaveSaldo } from '../auth.js'
+import { getUsuario, getClaveSaldo } from '../auth.js'
 
 const saldo = ref(0)
 const metodo = ref("")
@@ -37,9 +37,11 @@ const mensaje = ref("")
 const mensajeTipo = ref("success")
 const guardado = localStorage.getItem(getClaveSaldo())
 
-if (guardado) {
+if (guardado) 
+{
   saldo.value = parseFloat(guardado)
-} else {
+} else
+{
   localStorage.setItem(getClaveSaldo(), 0)
 }
 
@@ -63,7 +65,6 @@ function cargarSaldo() {
   mensajeTipo.value = "success"
   mensaje.value = "Saldo cargado con éxito."
 
-  // limpio el form
   metodo.value = ""
   monto.value = 0
   location.reload()

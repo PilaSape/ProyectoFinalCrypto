@@ -16,7 +16,7 @@
       <tbody>
         <tr v-for="transaccion in transacciones" :key="transaccion.id">
           <td>{{ transaccion.cryptoCode }}</td>
-          <td>{{ transaccion.cryptoAmount }}</td>
+          <td>{{ transaccion.cryptoAmount.toFixed(5) }}</td>
           <td>
               <span v-if="transaccion.action === 'purchase'" class="badge bg-success">Compra</span>
               <span v-else class="badge bg-danger">Venta</span>
@@ -81,8 +81,8 @@ import { ref, onMounted } from 'vue'
 import { isAdmin, getClaveSaldo } from '../auth.js'
 
 const transacciones = ref([])
-const editando = ref(null)    // guarda la transaccion que se está editando
-const paraBorrar = ref(null)  // guarda la transaccion que se quiere borrar
+const editando = ref(null)    
+const paraBorrar = ref(null)  
 onMounted(async function() 
 {
   await cargarTransacciones()
@@ -116,7 +116,8 @@ async function guardarEdicion()
     body: JSON.stringify({
       cryptoCode: editando.value.cryptoCode,
       cryptoAmount: Number(editando.value.cryptoAmount),
-      money: Number(editando.value.money)
+      money: Number(editando.value.money),
+      action: editando.value.action
     })
   })
   editando.value = null

@@ -2,7 +2,7 @@
   <div>
     <div class="container mt-5">
       <h1 class="fw-bold text-center mb-2">Bienvenido a <span class="text-success">CriptoApp</span></h1>
-      <p class="text-center text-muted mb-5">{{ usuario?.usuario }} Manejá tu cartera de criptomonedas en un solo lugar</p>
+      <p class="text-center text-muted mb-5"><u><span class="fw-bold text-uppercase">{{ usuario?.usuario }}</span></u> Manejá tu cartera de criptomonedas en un solo lugar</p>
 
       <div class="row justify-content-center g-3">
         <div class="col-5">

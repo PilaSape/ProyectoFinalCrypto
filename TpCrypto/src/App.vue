@@ -3,7 +3,7 @@
 
     <nav v-if="logueado" class="navbar navbar-light bg-success px-3 d-flex justify-content-between">
       
-      <RouterLink to="/" class="navbar-brand text-dark">CriptoApp</RouterLink>
+      <RouterLink to="/" class="navbar-brand text-dark fw-bold">Inicio </RouterLink>
       
       <div class="d-flex gap-2">
         <span class="text-dark fw-bold d-flex align-items-center">$ {{ saldo.toLocaleString('es-AR') }}</span>

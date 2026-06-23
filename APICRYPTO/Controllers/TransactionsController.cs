@@ -39,31 +39,31 @@ namespace APICRYPTO.Controllers
 
         // creo una nueva transaccion de compra o venta
         [HttpPost]
-        public async Task<IActionResult> Crear([FromBody] Transactions request)
+        public async Task<IActionResult> Crear([FromBody] Transactions transaction)
         {
             // valido que la cantidad sea mayor a 0
-            if (request.CryptoAmount <= 0)
+            if (transaction.CryptoAmount <= 0)
                 return BadRequest("La cantidad debe ser mayor a 0");
 
             // si es una venta, verifico que el usuario tenga suficiente cripto antes de dejarla pasar
-            if (request.Action == "sale")
+            if (transaction.Action == "sale")
             {
-                var saldo = await ObtenerSaldo(request.CryptoCode);
-                if (request.CryptoAmount > saldo)
-                    return BadRequest($"No tenés suficiente {request.CryptoCode}. Saldo actual: {saldo}");
+                var saldo = await ObtenerSaldo(transaction.CryptoCode);
+                if (transaction.CryptoAmount > saldo)
+                    return BadRequest($"No tenés suficiente {transaction.CryptoCode}. Saldo actual: {saldo}");
             }
 
             // consulto el precio actual a la API de criptoya y lo multiplico por la cantidad
-            var precio = await ObtenerPrecioCrypto(request.CryptoCode);
+            var precio = await ObtenerPrecioCrypto(transaction.CryptoCode);
             if (precio == null)
                 return StatusCode(500, "No se pudo obtener el precio de la criptomoneda");
 
-            request.Money = request.CryptoAmount * precio.Value;
+            transaction.Money = transaction.CryptoAmount * precio.Value;
 
-            _context.transactions.Add(request);
+            _context.transactions.Add(transaction);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(ObtenerPorId), new { id = request.Id }, request);
+            return CreatedAtAction(nameof(ObtenerPorId), new { id = transaction.Id }, transaction);
         }
 
         // edito una transaccion existente, solo piso los campos que me mandan

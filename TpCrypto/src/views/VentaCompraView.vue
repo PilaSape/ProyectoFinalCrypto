@@ -19,7 +19,7 @@
 
         
         <select class="form-select mb-3" v-model="criptomoneda">
-          <option value="">Selecciona una criptomoneda</option>
+          <option value="" disabled>Selecciona una criptomoneda</option>
           <template v-if="accion === 'purchase'">
             <option value="BTC">Bitcoin</option>
             <option value="ETH">Ethereum</option>
@@ -28,13 +28,11 @@
             <option value="SOL">Solana</option>
             <option value="BNB">BNB</option>
           </template>
+          
           <template v-else-if="accion === 'sale'">
             <option v-for="t in portafolio.tenencias" :key="t.cryptoCode" :value="t.cryptoCode">
               {{ t.cryptoCode }} ({{ t.cantidad }} disponibles)
             </option>
-          </template>
-          <template v-else>
-            <option disabled>Selecciona una acción primero</option>
           </template>
         </select>
 
